@@ -1,0 +1,16 @@
+{
+  "name": "eddits-auth",
+  "version": "1.0.0",
+  "main": "./src/index.js",
+  "license": "MIT",
+  "scripts": {},
+  "devDependencies": {},
+  "dependencies": {
+    "base64url": "^2.0.0",
+    "crypto-js": "^3.1.9-1",
+    "ethereumjs-util": "^5.1.5",
+    "keythereum": "^1.0.3",
+    "secp256k1": "^3.5.0",
+    "web3": "^0.20.6"
+  }
+}
