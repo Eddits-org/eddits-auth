@@ -23,7 +23,7 @@ const LoginResponse = (web3provider) => {
     });
   };
 
-  const decodeToken = (token) => {
+  const decodeToken = (token, maxDurationInSeconds = null) => {
     if(!token) return {
       success: false,
       error: 'No token'
@@ -55,11 +55,20 @@ const LoginResponse = (web3provider) => {
         success: false,
         error: `Signature alg ${header.alg} is not supported`
       };
-    if(!payload || !payload.identity || !payload.nonce)
+    if(!payload || !payload.sub || !payload.aud || !payload.iat)
       return {
         success: false,
         error: 'Invalid payload'
       };
+    if(maxDurationInSeconds) {
+      const now = Math.floor(Date.now() / 1000);
+      if(now - payload.iat > maxDurationInSeconds) {
+        return {
+          success: false,
+          error: `Token is expired (iat = ${payload.iat})`
+        };
+      }
+    }
     return {
       success: true,
       rawHeader: encHeader,
@@ -100,12 +109,12 @@ const LoginResponse = (web3provider) => {
     }  
   };
 
-  return (token, requiredNonce, cb) => {
-    const result = validateSignature(decodeToken(token));
+  return (token, spIdentity, maxDurationInSeconds, cb) => {
+    const result = validateSignature(decodeToken(token, maxDurationInSeconds));
     if(!result.success) return cb(result.error);
-    if(requiredNonce && result.payload.nonce !== requiredNonce)
-      return cb('Invalid nonce value');
-    isActionKey(result.payload.identity, result.signer, (err, isSuccess) => {
+    if(spIdentity && result.payload.aud !== spIdentity)
+      return cb(`Invalid aud (${result.payload.aud} is not ${spIdentity})`);
+    isActionKey(result.payload.sub, result.signer, (err, isSuccess) => {
       if(err) return cb('Cannot call Identity contract to validate');
       if(!isSuccess) return cb('Signing key is not registered on identity contract as ACTION key');
       return cb(null, result);
