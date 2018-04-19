@@ -4,12 +4,11 @@ const secp256k1 = require('secp256k1');
 const LoginRequest = (privateKey) => {
   
   /* Build the encoded payload to be signed */
-  const buildContentToSign = (identityAddress, redirect, nonce) => {
+  const buildContentToSign = (identityAddress, redirect) => {
     // Build the request
     const request = {
       identity: identityAddress,
-      redirect,
-      nonce
+      redirect
     };
     // Base64 encoded JSON
     return Buffer.from(
@@ -43,8 +42,8 @@ const LoginRequest = (privateKey) => {
     ).toString('base64');
   };
 
-  return (identityAddress, redirect, nonce) => {
-      const toBeSigned = buildContentToSign(identityAddress, redirect, nonce);
+  return (identityAddress, redirect) => {
+      const toBeSigned = buildContentToSign(identityAddress, redirect);
       const signature = signHash(hash(toBeSigned));
       return buildLoginRequest(toBeSigned, signature);
   };
