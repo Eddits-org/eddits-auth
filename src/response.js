@@ -9,7 +9,7 @@ const ACTION_KEY_PURPOSE = 2;
 
 const LoginResponse = (web3provider) => {
 
-  const web3 = new Web3(new Web3.providers.HttpProvider(web3provider));
+  const web3 = (typeof web3provider === 'string' ? new Web3(new Web3.providers.HttpProvider(web3provider)) : web3provider);
 
   const addressToKey = address => `0x${utils.padLeft(address.substring(2), 64)}`;
 
